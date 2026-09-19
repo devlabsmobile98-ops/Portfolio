@@ -60,11 +60,16 @@ const HOVER_TRANSITION = { duration: 0.15, ease: 'easeOut' };
 
 function BigGreeting() {
   const phrase = "'Sup, I'm Nuha";
-  const chars = phrase.split('');
+  // Split into words (keeping trailing spaces attached) so the browser only
+  // ever wraps between words, never in the middle of one, while each
+  // character still animates individually.
+  const words = phrase.split(/(?<= )/);
+
+  let globalIndex = 0;
 
   return (
     <div
-      className="relative z-30"
+      className="relative z-30 pt-10 sm:pt-8"
       style={{ perspective: 1200 }}
     >
       <motion.div
@@ -75,7 +80,7 @@ function BigGreeting() {
           duration: 0.7,
           ease: 'easeOut',
         }}
-        className="absolute -top-8 left-2 md:left-8"
+        className="absolute -top-2 sm:-top-8 left-2 md:left-8"
       >
         <span
           className="inline-block rounded-full border-2 px-4 py-1.5 text-xs md:text-sm font-black uppercase tracking-[0.18em]"
@@ -98,53 +103,62 @@ function BigGreeting() {
         className="flex flex-wrap items-center outline-none focus-visible:ring-4 focus-visible:ring-offset-4"
         style={{
           rowGap: '0.05em',
-          columnGap: '0.015em',
         }}
       >
-        {chars.map((ch, i) => {
-          const isSpace = ch === ' ';
+        {words.map((word, wordIndex) => (
+          <span
+            key={wordIndex}
+            className="inline-flex"
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            {word.split('').map((ch) => {
+              const i = globalIndex++;
+              const isSpace = ch === ' ';
 
-          return (
-            <motion.span
-              key={i}
-              initial={{
-                opacity: 0,
-                y: 120,
-                rotate: i % 2 === 0 ? -15 : 15,
-                scale: 1.5,
-              }}
-              whileInView={{
-                opacity: 1,
-                y: 0,
-                rotate: 0,
-                scale: 1,
-              }}
-              viewport={{
-                once: true,
-                margin: '-100px',
-              }}
-              transition={{
-                type: 'spring',
-                stiffness: 150,
-                damping: 13,
-                delay: i * 0.045,
-              }}
-              className="inline-block font-black italic leading-[0.82] tracking-[-0.075em]"
-              style={{
-                fontSize: 'clamp(3.5rem, 11vw, 9rem)',
-                color: isSpace
-                  ? 'transparent'
-                  : LETTER_COLORS[i % LETTER_COLORS.length],
-                textShadow: `4px 5px 0 ${NAVY}`,
-                transformStyle: 'preserve-3d',
-              }}
-            >
-              <span className="inline-block">
-                {isSpace ? '\u00A0' : ch}
-              </span>
-            </motion.span>
-          );
-        })}
+              return (
+                <motion.span
+                  key={i}
+                  initial={{
+                    opacity: 0,
+                    y: 120,
+                    rotate: i % 2 === 0 ? -15 : 15,
+                    scale: 1.5,
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    y: 0,
+                    rotate: 0,
+                    scale: 1,
+                  }}
+                  viewport={{
+                    once: true,
+                    margin: '-100px',
+                  }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 150,
+                    damping: 13,
+                    delay: i * 0.045,
+                  }}
+                  className="inline-block font-black italic leading-[0.82] tracking-[-0.02em]"
+                  style={{
+                    fontSize: 'clamp(3.5rem, 11vw, 9rem)',
+                    marginRight: '0.035em',
+                    color: isSpace
+                      ? 'transparent'
+                      : LETTER_COLORS[i % LETTER_COLORS.length],
+                    textShadow: `4px 5px 0 ${NAVY}`,
+                    transformStyle: 'preserve-3d',
+                  }}
+                >
+                  <span className="inline-block">
+                    {isSpace ? '\u00A0' : ch}
+                  </span>
+                </motion.span>
+              );
+            })}
+          </span>
+        ))}
       </h2>
     </div>
   );
@@ -287,26 +301,28 @@ function PortraitFrame() {
         </div>
       </motion.div>
 
-      {/* star — enlarged and nudged out so it still sits cleanly on the corner */}
+      {/* star — enlarged and nudged out so it still sits cleanly on the corner.
+          Scales down on narrow screens so it doesn't overwhelm a small portrait. */}
       <motion.div
-        className="absolute -top-11 -right-10 z-20"
-        animate={{
-          rotate: [0, 12, -8, 0],
-          scale: [1, 1.12, 0.95, 1],
-        }}
-        transition={{
-          repeat: Infinity,
-          duration: 4,
-          ease: 'easeInOut',
-        }}
-      >
-        <Star
-          size={80}
-          fill={YELLOW}
-          stroke={NAVY}
-          strokeWidth={2}
-        />
-      </motion.div>
+  className="absolute -top-5 -right-4 sm:-top-8 sm:-right-7 z-20 w-14 h-14 sm:w-20 sm:h-20"
+  animate={{
+    rotate: [0, 12, -8, 0],
+    scale: [1, 1.12, 0.95, 1],
+  }}
+  transition={{
+    repeat: Infinity,
+    duration: 4,
+    ease: 'easeInOut',
+  }}
+>
+  <Star
+    className="w-full h-full"
+    fill={YELLOW}
+    stroke={NAVY}
+    strokeWidth={2}
+  />
+</motion.div>
+
 
       {/* handwritten label */}
       <motion.div
@@ -617,78 +633,104 @@ function Diploma() {
               }}
             >
               {/* Decorative stars — only animate once revealed */}
-              {revealed && (
-                <>
-                  <motion.div
-                    animate={{
-                      rotate: 360,
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{
-                      rotate: {
-                        repeat: Infinity,
-                        duration: 8,
-                        ease: 'linear',
-                      },
-                      scale: {
-                        repeat: Infinity,
-                        duration: 2,
-                      },
-                    }}
-                    className="absolute top-5 left-5"
-                  >
-                    <Sparkles
-                      size={28}
-                      strokeWidth={3}
-                      style={{
-                        color: YELLOW,
-                      }}
-                    />
-                  </motion.div>
+{revealed && (
+  <>
+    <motion.div
+      animate={{
+        rotate: 360,
+        scale: [1, 1.2, 1],
+      }}
+      transition={{
+        rotate: {
+          repeat: Infinity,
+          duration: 8,
+          ease: 'linear',
+        },
+        scale: {
+          repeat: Infinity,
+          duration: 2,
+        },
+      }}
+      className="absolute top-5 left-5"
+    >
+      <Sparkles
+        size={28}
+        strokeWidth={3}
+        style={{
+          color: YELLOW,
+        }}
+      />
+    </motion.div>
 
-                  <motion.div
-                    animate={{
-                      rotate: [0, 10, -10, 0],
-                      scale: [1, 1.15, 1],
-                    }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 3,
-                    }}
-                    className="absolute bottom-6 right-7"
-                  >
-                    <Star
-                      size={26}
-                      fill={PINK}
-                      strokeWidth={3}
-                      style={{
-                        color: PINK,
-                      }}
-                    />
-                  </motion.div>
+    <motion.div
+      animate={{
+        rotate: [0, 10, -10, 0],
+        scale: [1, 1.15, 1],
+      }}
+      transition={{
+        repeat: Infinity,
+        duration: 3,
+      }}
+      className="absolute bottom-6 right-7"
+    >
+      <Star
+        size={26}
+        fill={PINK}
+        strokeWidth={3}
+        style={{
+          color: PINK,
+        }}
+      />
+    </motion.div>
 
-                  <motion.div
-                    animate={{
-                      x: [-3, 3, -3],
-                      y: [0, -4, 0],
-                    }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 2.5,
-                    }}
-                    className="absolute top-7 right-7"
-                  >
-                    <Heart
-                      size={23}
-                      fill={RED}
-                      strokeWidth={3}
-                      style={{
-                        color: RED,
-                      }}
-                    />
-                  </motion.div>
-                </>
-              )}
+    {/* NEW BLUE STAR — bottom left */}
+    <motion.div
+      animate={{
+        rotate: [0, -12, 10, 0],
+        scale: [1, 1.18, 0.95, 1],
+        x: [0, -3, 2, 0],
+        y: [0, -4, 0, 0],
+      }}
+      transition={{
+        repeat: Infinity,
+        duration: 3.5,
+        ease: 'easeInOut',
+      }}
+      className="absolute bottom-5 left-10"
+    >
+      <Star
+        size={30}
+        fill={CYAN}
+        strokeWidth={3}
+        style={{
+          color: CYAN,
+        }}
+      />
+    </motion.div>
+
+    <motion.div
+      animate={{
+        x: [-3, 3, -3],
+        y: [0, -4, 0],
+      }}
+      transition={{
+        repeat: Infinity,
+        duration: 2.5,
+      }}
+      className="absolute top-7 right-7"
+    >
+      <Heart
+        size={23}
+        fill={RED}
+        strokeWidth={3}
+        style={{
+          color: RED,
+        }}
+      />
+    </motion.div>
+  </>
+)}
+
 
               <div className="relative z-10 text-center px-6">
                 <motion.div
@@ -772,11 +814,12 @@ function Diploma() {
               {revealed &&
                 [
                   { x: '12%', y: '18%', color: PINK, r: -20 },
-                  { x: '82%', y: '22%', color: CYAN, r: 25 },
+                  { x: '50%', y: '10%', color: CYAN, r: 25 },
                   { x: '18%', y: '76%', color: YELLOW, r: 15 },
                   { x: '87%', y: '72%', color: RED, r: -25 },
                   { x: '6%', y: '48%', color: ORANGE, r: 35 },
                   { x: '94%', y: '48%', color: CYAN, r: -35 },
+                  { x: '58%', y: '88%', color: YELLOW, r: -35 }
                 ].map((piece, i) => (
                   <motion.div
                     key={i}

@@ -7,12 +7,11 @@ const NAV = [
   { id: 'bio', label: 'Bio' },
   { id: 'experience', label: 'Experience' },
   { id: 'skills', label: 'Skills' },
-  { id: 'projects', label: 'Projects' },
   { id: 'awards', label: 'Awards' },
-  { id: 'contact', label: 'Contact', soon: true },
+  { id: 'contact', label: 'Contact' },
 ];
 
-export default function Navbar({ season }) {
+export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -56,13 +55,6 @@ export default function Navbar({ season }) {
             {n.soon && <span className="ml-1 text-[10px] opacity-60">soon</span>}
           </button>
         ))}
-
-        <span
-          className="ml-1 px-4 py-2 text-sm font-bold uppercase tracking-widest whitespace-nowrap"
-          style={{ color: 'var(--s-accent)' }}
-        >
-          {season.name}
-        </span>
 
         <AccessibilityReader />
       </motion.nav>

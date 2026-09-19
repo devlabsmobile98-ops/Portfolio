@@ -5,29 +5,22 @@ import { motion } from 'framer-motion';
 import { RotateCcw, Trophy } from 'lucide-react';
 
 const BADGES = [
-  { id: 'b1', title: "Dean's List", org: 'University of Toronto', year: '2024', color: '#FF6B9D', emoji: '🎓' },
-  { id: 'b2', title: 'Hackathon Winner', org: 'HackTheNorth', year: '2025', color: '#4D96FF', emoji: '🏆' },
-  { id: 'b3', title: 'Best Design', org: 'Design Jam', year: '2024', color: '#6BCB77', emoji: '🎨' },
-  { id: 'b4', title: "People's Choice", org: 'Demo Day', year: '2025', color: '#FFD93D', emoji: '⭐' },
-  { id: 'b5', title: 'Top Contributor', org: 'Open Source', year: '2023', color: '#B57BFF', emoji: '💡' },
-  { id: 'b6', title: 'Rising Star', org: 'Dev Club', year: '2022', color: '#FF9F40', emoji: '🚀' },
+  { id: 'b1', title: "Dean's List", org: 'Ontario Tech University', year: '2022–2026', color: '#FF6B9D', emoji: '🎓' },
+  { id: 'b2', title: 'Electrical, Computer & Software Engineering Capstone', org: '2nd Place Winner', year: '2026', color: '#4D96FF', emoji: '🏆' },
+  { id: 'b3', title: "President's Honours List", org: 'Ontario Tech University', year: '2022–2026', color: '#6BCB77', emoji: '🤓' }
 ];
 
 const SPOTS = {
-  'spot-1': { place: '1st', height: 'h-44', medal: '#FFD700', tint: '#FFF6CC', emoji: '🥇' },
-  'spot-2': { place: '2nd', height: 'h-32', medal: '#B8B8B8', tint: '#EFEFEF', emoji: '🥈' },
-  'spot-3': { place: '3rd', height: 'h-24', medal: '#CD7F32', tint: '#F5E1D0', emoji: '🥉' },
+  'spot-1': { place: '1st', height: 'h-52', medal: '#FFD700', tint: '#FFF6CC', emoji: '🥇' },
 };
-const VISUAL_ORDER = ['spot-2', 'spot-1', 'spot-3'];
+const VISUAL_ORDER = ['spot-1'];
 
 function fireConfetti(spotId) {
   const colors =
     spotId === 'spot-1'
       ? ['#FFD700', '#FF6B9D', '#4D96FF', '#6BCB77']
-      : spotId === 'spot-2'
-      ? ['#C0C0C0', '#FFFFFF', '#4D96FF']
-      : ['#CD7F32', '#FFD93D', '#FF9F40'];
-  const count = spotId === 'spot-1' ? 140 : spotId === 'spot-2' ? 70 : 45;
+      : ['#FFD700', '#FF6B9D', '#4D96FF', '#6BCB77'];
+  const count = 140;
   confetti({ particleCount: count, spread: 75, startVelocity: 45, origin: { y: 0.65 }, colors, scalar: 0.9 });
   if (spotId === 'spot-1') {
     setTimeout(() => confetti({ particleCount: 60, spread: 100, origin: { y: 0.5 }, colors }), 150);
@@ -37,13 +30,13 @@ function fireConfetti(spotId) {
 function BadgeCard({ b, dragging }) {
   return (
     <div
-      className="w-40 p-3 rounded-2xl border-2 shadow-lg select-none"
+      className="w-60 md:w-72 p-5 rounded-2xl border-2 shadow-lg select-none"
       style={{ background: b.color, borderColor: '#000', color: '#000', opacity: dragging ? 0.85 : 1 }}
     >
-      <div className="text-2xl leading-none">{b.emoji}</div>
-      <div className="font-black text-sm leading-tight mt-1 uppercase tracking-tight">{b.title}</div>
-      <div className="text-[11px] font-semibold opacity-80 mt-0.5">{b.org}</div>
-      <span className="inline-block mt-1.5 px-1.5 py-0.5 rounded-full bg-black/15 text-[10px] font-bold">{b.year}</span>
+      <div className="text-4xl leading-none">{b.emoji}</div>
+      <div className="font-black text-lg leading-tight mt-2 uppercase tracking-tight">{b.title}</div>
+      <div className="text-sm font-semibold opacity-80 mt-1">{b.org}</div>
+      <span className="inline-block mt-3 px-2 py-1 rounded-full bg-black/15 text-xs font-bold">{b.year}</span>
     </div>
   );
 }
@@ -69,7 +62,7 @@ export default function Awards({ season }) {
   };
 
   const trayBadges = BADGES.filter((b) => !Object.values(placed).includes(b.id));
-  const allPlaced = Object.keys(placed).length === 3;
+  const allPlaced = Object.keys(placed).length === VISUAL_ORDER.length;
 
   return (
     <section id="awards" className="relative min-h-screen py-24 px-6" aria-label="Awards" style={{ background: '#ffb703', color: '#023047', '--s-bg': '#ffb703', '--s-text': '#023047', '--s-card': '#fff8f0', '--s-accent': '#ff4d6d' }}>
@@ -97,7 +90,7 @@ export default function Awards({ season }) {
                 {(prov, snap) => (
                   <div ref={prov.innerRef} {...prov.droppableProps} className="flex flex-col items-center">
                     {/* badge slot above the block */}
-                    <div className="h-24 w-40 flex items-end justify-center">
+                    <div className="h-52 w-72 flex items-end justify-center">
                       {placedBadge ? (
                         <Draggable draggableId={placedBadge.id} index={0}>
                           {(p, s) => (
@@ -115,7 +108,7 @@ export default function Awards({ season }) {
                     </div>
 
                     <motion.div
-                      className={`w-36 md:w-40 ${spot.height} rounded-t-2xl border-2 flex flex-col items-center justify-start pt-3 transition-colors`}
+                      className={`w-60 md:w-72 ${spot.height} rounded-t-2xl border-2 flex flex-col items-center justify-start pt-5 transition-colors`}
                       style={{
                         background: snap.isDraggingOver ? spot.medal : spot.tint,
                         borderColor: spot.medal,
@@ -124,12 +117,12 @@ export default function Awards({ season }) {
                       animate={placedBadge ? { rotate: [-1.5, 1.5, -1.5] } : { rotate: 0 }}
                       transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
                     >
-                      <span className="text-3xl">{spot.emoji}</span>
-                      <span className="font-black text-lg uppercase" style={{ color: '#000' }}>
+                      <span className="text-5xl">{spot.emoji}</span>
+                      <span className="font-black text-2xl uppercase" style={{ color: '#000' }}>
                         {spot.place}
                       </span>
                       {spotId === 'spot-1' && (
-                        <Trophy className="w-5 h-5 mt-1" style={{ color: '#B8860B' }} />
+                        <Trophy className="w-7 h-7 mt-2" style={{ color: '#B8860B' }} />
                       )}
                     </motion.div>
                     {prov.placeholder}
@@ -143,14 +136,14 @@ export default function Awards({ season }) {
         {/* tray */}
         <div className="mt-14">
           <div className="text-center text-sm font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--s-text)' }}>
-            {allPlaced ? '🎉 All spots filled!' : 'Badge tray — drag me!'}
+            {allPlaced ? '🎉 Champion selected!' : 'Badge tray — choose your champion!'}
           </div>
           <Droppable droppableId="tray" direction="horizontal">
             {(prov, snap) => (
               <div
                 ref={prov.innerRef}
                 {...prov.droppableProps}
-                className="flex flex-wrap gap-3 justify-center min-h-32 p-4 rounded-2xl border-2 border-dashed"
+                className="flex flex-wrap gap-5 justify-center min-h-48 p-6 rounded-2xl border-2 border-dashed"
                 style={{
                   borderColor: 'color-mix(in srgb, var(--s-text) 35%, transparent)',
                   background: snap.isDraggingOver
